@@ -154,32 +154,6 @@ def next_window():
 
         return X_train, Y_train, X_test, Y_test, X_validation, Y_validation
 
-    
-
-    class ConvolutionalLayerInput:
-        def __init__(self, layer_number, root):
-            self.layer_number = layer_number
-            self.root = root
-            self.frame = ttk.Frame(self.root)
-
-            self.labels = []
-            self.entries = []
-
-            input_options = ["Number of Filters:", "Kernel Size:", "Strides:", "Activation:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:"]
-            for i, option in enumerate(input_options):
-                label = ttk.Label(self.frame, text=f"{option}")
-                entry = ttk.Entry(self.frame)
-                label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
-                entry.grid(row=i, column=1, padx=5, pady=5)
-                self.labels.append(label)
-                self.entries.append(entry)
-
-            # Add a label indicating the layer number
-            layer_label = ttk.Label(self.frame, text=f"Layer {self.layer_number}")
-            layer_label.grid(row=i + 1, column=0, columnspan=2, pady=5)
-
-        def add_layer(self,model,input_shape):
-            model.add(Conv2D(self.entries[0], kernel_size=self.entries[1], strides=self.entries[2], activation=self.entries[3], kernel_initializer=self.entries[4], padding=self.entries[5], input_shape=input_shape))
 
 
     def build_model(input_shape, fault_names, normalization, pooling, dense_activation, optimizer, metric):
