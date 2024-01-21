@@ -166,22 +166,170 @@ def next_window():
 
             self.labels = []
             self.entries = []
-
-            input_options = ["Number of Kernels:", "Kernel Size:", "Strides:", "Activation:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:","Pool size"]
-            for i, option in enumerate(input_options):
-                label = ttk.Label(self.frame, text=f"{option}")
-                entry = ttk.Entry(self.frame)
-                label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
-                entry.grid(row=i, column=1, padx=5, pady=5)
-                self.labels.append(label)
-                self.entries.append(entry)
+            
+            
+            self.activation_var=tk.StringVar()
+            self.kernel_var=tk.StringVar()
+            self.pad_var=tk.StringVar()
+            self.norm_var=tk.StringVar()
+            self.pool_var=tk.StringVar()
+            
+            
+            def on_select1(event):
+                activation_value=self.activation_var.get()
+                kernel_value=self.kernel_var.get()
+                pad_value=self.pad_var.get()
+                norm_value=self.norm_var.get()
+                pool_value=self.pool_var.get()
+            
+            if self.layer_number==1:
+                input_options = ["Number of Kernels:", "Kernel Size(in brackets):", "Strides:", "Activation:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:","Pool size(in brackets):"]
+                for i, option in enumerate(input_options):
+                    
+                    if option=="Activation:":
+                        
+                        activation_label = ttk.Label(self.frame, text=f"{option}")
+                        activation_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['relu','softmax','Sigmoid','Tanh','Leaky ReLU']
+                        combobox_activation = ttk.Combobox(self.frame,textvariable=self.activation_var, values=options)
+                        combobox_activation.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_activation.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(activation_label)
+                        self.entries.append(self.activation_var)
+                    
+                    elif option=="Kernel Initializer:":
+                        
+                        kernel_label = ttk.Label(self.frame, text=f"{option}")
+                        kernel_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['random_normal']
+                        combobox_kernel = ttk.Combobox(self.frame,textvariable=self.kernel_var, values=options)
+                        combobox_kernel.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_kernel.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(kernel_label)
+                        self.entries.append(self.kernel_var)
+                        
+                    elif option=="Padding:":
+                        
+                        pad_label = ttk.Label(self.frame, text=f"{option}")
+                        pad_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['same']
+                        combobox_pad = ttk.Combobox(self.frame,textvariable=self.pad_var, values=options)
+                        combobox_pad.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_pad.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(pad_label)
+                        self.entries.append(self.pad_var)
+                    
+                    elif option=="Normalization:":
+                        
+                        norm_label = ttk.Label(self.frame, text=f"{option}")
+                        norm_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['Batch Normalization', 'Layer Normalization', 'Group Normalization']
+                        combobox_norm = ttk.Combobox(self.frame,textvariable=self.norm_var, values=options)
+                        combobox_norm.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_norm.bind("<<ComboboxSelected>>", on_select1)
+                        norm_value=self.norm_var.get()
+                        self.labels.append(norm_label)
+                        self.entries.append(self.norm_var)
+                    
+                    elif option=="Pooling:":
+                        
+                        pool_label = ttk.Label(self.frame, text=f"{option}")
+                        pool_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['MaxPooling2D','AveragePooling2D']
+                        combobox_pool = ttk.Combobox(self.frame,textvariable=self.pool_var, values=options)
+                        combobox_pool.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_pool.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(pool_label)
+                        self.entries.append(self.pool_var)
+                    
+                    else:
+                        
+                        label = ttk.Label(self.frame, text=f"{option}")
+                        entry = ttk.Entry(self.frame)
+                        label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        entry.grid(row=i, column=1, padx=5, pady=5)
+                        self.labels.append(label)
+                        self.entries.append(entry)
                 
+                
+                
+                
+                
+                # for i, option in enumerate(input_options):
+                #     label = ttk.Label(self.frame, text=f"{option}")
+                #     entry = ttk.Entry(self.frame)
+                #     label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                #     entry.grid(row=i, column=1, padx=5, pady=5)
+                #     self.labels.append(label)
+                #     self.entries.append(entry)
+            
+            else:
+                input_options = ["Number of Kernels:", "Kernel Size(in brackets):", "Strides:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:","Pool size(in brackets):"]
+                for i, option in enumerate(input_options):
+                    if option=="Kernel Initializer:":
+                        
+                        kernel_label = ttk.Label(self.frame, text=f"{option}")
+                        kernel_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['random_normal']
+                        combobox_kernel = ttk.Combobox(self.frame,textvariable=self.kernel_var, values=options)
+                        combobox_kernel.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_kernel.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(kernel_label)
+                        self.entries.append(self.kernel_var)
+                        
+                    elif option=="Padding:":
+                        
+                        pad_label = ttk.Label(self.frame, text=f"{option}")
+                        pad_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['same']
+                        combobox_pad = ttk.Combobox(self.frame,textvariable=self.pad_var, values=options)
+                        combobox_pad.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_pad.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(pad_label)
+                        self.entries.append(self.pad_var)
+                    
+                    elif option=="Normalization:":
+                        
+                        norm_label = ttk.Label(self.frame, text=f"{option}")
+                        norm_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['Batch Normalization', 'Layer Normalization', 'Group Normalization']
+                        combobox_norm = ttk.Combobox(self.frame,textvariable=self.norm_var, values=options)
+                        combobox_norm.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_norm.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(norm_label)
+                        self.entries.append(self.norm_var)
+                    
+                    elif option=="Pooling:":
+                        
+                        pool_label = ttk.Label(self.frame, text=f"{option}")
+                        pool_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        options = ['MaxPooling2D','AveragePooling2D']
+                        combobox_pool = ttk.Combobox(self.frame,textvariable=self.pool_var, values=options)
+                        combobox_pool.grid(row=i, column=1, padx=5, pady=5)
+                        combobox_pool.bind("<<ComboboxSelected>>", on_select1)
+                        self.labels.append(pool_label)
+                        self.entries.append(self.pool_var)
+                    
+                    else:
+                        
+                        label = ttk.Label(self.frame, text=f"{option}")
+                        entry = ttk.Entry(self.frame)
+                        label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
+                        entry.grid(row=i, column=1, padx=5, pady=5)
+                        self.labels.append(label)
+                        self.entries.append(entry)
+                
+            
+            # Disable activation entry for layers other than the first
+            # if self.layer_number != 1:
+            #     self.entries[3].configure(state='disabled')
+            #     self.labels[3].configure(state='disabled')
 
         def add_layer(self,model,input_shape=(0,0,0)):
             
-            if input_shape==(0,0,0):
+            if input_shape==(0,0,0) or self.layer_number!=1:
                 
-                model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), kernel_initializer=self.entries[4].get(), padding=self.entries[5].get()))
+                model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), kernel_initializer=self.kernel_var.get(), padding=self.pad_var.get()))
                 
                 if self.entries[-3]=='Batch Normalization':
                     model.add(BatchNormalization())
@@ -197,7 +345,7 @@ def next_window():
                     
             else:
                 
-                model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), activation=self.entries[3].get(), kernel_initializer=self.entries[4].get(), padding=self.entries[5].get(),input_shape=input_shape))
+                model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), activation=self.activation_var.get(), kernel_initializer=self.kernel_var.get(), padding=self.pad_var.get(),input_shape=input_shape))
                 
                 if self.entries[-3]=='Batch Normalization':
                     model.add(BatchNormalization())
