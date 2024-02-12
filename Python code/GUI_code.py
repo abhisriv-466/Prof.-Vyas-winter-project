@@ -17,6 +17,7 @@ import tensorflow as tf
 import math
 from tkinter import PhotoImage
 from PIL import Image, ImageTk
+
 import keras
 from keras.optimizers import SGD,Adagrad,RMSprop,Adam,Adadelta,Adamax,Adafactor,AdamW,Nadam
 from keras.models import Model
@@ -31,33 +32,50 @@ from keras.layers import Flatten
 from keras.layers import BatchNormalization,LayerNormalization,GroupNormalization
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib.figure import Figure
+
+
+
+
 # Function to make a window scrollable
 # def on_mousewheel(event):
 #     canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
 # def make_scrollable(window):
 #     global canvas
     
 #     canvas = tk.Canvas(window)
 #     scrollbar = tk.Scrollbar(window, orient="vertical", command=canvas.yview)
 #     frame = tk.Frame(canvas)
+
 #     frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 #     canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 #     canvas.bind_all("<MouseWheel>", on_mousewheel)
+
 #     canvas.create_window((0, 0), window=frame, anchor="nw")
 #     canvas.configure(yscrollcommand=scrollbar.set)
+
 #     return canvas, frame, scrollbar
+
+
+
+
 # Our main window with the entered name of the project
 def next_window():
     root1 = Toplevel(root)
     root1.title(entry_name.get())
     root1.state("zoomed")
+
     # Make the root1 window scrollable
     # canvas, frame, scrollbar = make_scrollable(root1)
+
+
 # Data prepration
 # HC,UB,CR,BPFO,BPFI
+
     def process_data(directory, fault_names, speeds, domain):
         X = []
         Y = []
+
         print(fault_names)
         for f in range(len(fault_names)):
         
@@ -68,6 +86,7 @@ def next_window():
                 S = str(s) + 'Hz'
                 P = os.path.join(P, S)  # added a dircetory named '40Hz' inside the directory named 'fault[f]'
                 P = os.path.join(P,'filtered_timedomain')  # added a directory inside the 40Hz directory named as 'filtered_timedomain
+
                 for i in range(int(entry_datasets.get())):
                     file = ''
                     file = fault_names[f] + '_time_' + S + '_' + str(i) + '.xls'
@@ -77,6 +96,7 @@ def next_window():
                     df.columns = range(1+int(entry_sensors.get()))  #no. of sensors + 1 coloumn for Time coordinate
                     df = df.iloc[:, 1:]                 #take from 6columns after excluding the first column
                      #created a df having columns [1,2,3,4,5,6...,no. of sensors]
+
                     if domain.lower() == 'time':
                         layers = 1
                         le = 4096
@@ -89,6 +109,7 @@ def next_window():
                     else:
                         layers = 1
                         le = 4096
+
                         df4 = np.zeros((2048, 6))
                         for i in range(200):
                             for j in range(6):
@@ -103,6 +124,7 @@ def next_window():
                             df5 = pd.DataFrame(df4)
                             X.append(df5)
                             Y.append(f)
+
         X = np.array(X)
         Y = np.array(Y)     #f=fault[f]
         print(len(X),len(Y))
@@ -112,6 +134,7 @@ def next_window():
             X = X.reshape((len(X), 2048, 6, 1))
         else:
             pass
+
         X, Y = shuffle(X, Y)
         return X,Y
     
@@ -128,8 +151,11 @@ def next_window():
         Y_validation = np.array(Y_validation)
         X_test = np.array(X_test)
         Y_test = np.array(Y_test)
+
         return X_train, Y_train, X_test, Y_test, X_validation, Y_validation
+
     
+
     class ConvolutionalLayerInput:
         def __init__(self, layer_number, root):
             self.layer_number = layer_number
@@ -140,37 +166,28 @@ def next_window():
 
             self.labels = []
             self.entries = []
-
-            input_options = ["Number of Kernels:", "Kernel Size:", "Strides:", "Activation:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:","Pool size"]
-            for i, option in enumerate(input_options):
-                label = ttk.Label(self.frame, text=f"{option}")
-                entry = ttk.Entry(self.frame)
-                label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
-                entry.grid(row=i, column=1, padx=5, pady=5)
-                self.labels.append(label)
-                self.entries.append(entry)
-
-
+            
+            
             self.activation_var=tk.StringVar()
             self.kernel_var=tk.StringVar()
             self.pad_var=tk.StringVar()
             self.norm_var=tk.StringVar()
             self.pool_var=tk.StringVar()
-
-
+            
+            
             def on_select1(event):
                 activation_value=self.activation_var.get()
                 kernel_value=self.kernel_var.get()
                 pad_value=self.pad_var.get()
                 norm_value=self.norm_var.get()
                 pool_value=self.pool_var.get()
-
+            
             if self.layer_number==1:
                 input_options = ["Number of Kernels:", "Kernel Size(in brackets):", "Strides:", "Activation:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:","Pool size(in brackets):"]
                 for i, option in enumerate(input_options):
-
+                    
                     if option=="Activation:":
-
+                        
                         activation_label = ttk.Label(self.frame, text=f"{option}")
                         activation_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['relu','softmax','Sigmoid','Tanh','Leaky ReLU']
@@ -179,9 +196,9 @@ def next_window():
                         combobox_activation.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(activation_label)
                         self.entries.append(self.activation_var)
-
+                    
                     elif option=="Kernel Initializer:":
-
+                        
                         kernel_label = ttk.Label(self.frame, text=f"{option}")
                         kernel_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['random_normal']
@@ -190,9 +207,9 @@ def next_window():
                         combobox_kernel.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(kernel_label)
                         self.entries.append(self.kernel_var)
-
+                        
                     elif option=="Padding:":
-
+                        
                         pad_label = ttk.Label(self.frame, text=f"{option}")
                         pad_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['same']
@@ -201,21 +218,20 @@ def next_window():
                         combobox_pad.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(pad_label)
                         self.entries.append(self.pad_var)
-
+                    
                     elif option=="Normalization:":
-
+                        
                         norm_label = ttk.Label(self.frame, text=f"{option}")
                         norm_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['Batch Normalization', 'Layer Normalization', 'Group Normalization']
                         combobox_norm = ttk.Combobox(self.frame,textvariable=self.norm_var, values=options)
                         combobox_norm.grid(row=i, column=1, padx=5, pady=5)
                         combobox_norm.bind("<<ComboboxSelected>>", on_select1)
-                        norm_value=self.norm_var.get()
                         self.labels.append(norm_label)
                         self.entries.append(self.norm_var)
-
+                    
                     elif option=="Pooling:":
-
+                        
                         pool_label = ttk.Label(self.frame, text=f"{option}")
                         pool_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['MaxPooling2D','AveragePooling2D']
@@ -224,20 +240,20 @@ def next_window():
                         combobox_pool.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(pool_label)
                         self.entries.append(self.pool_var)
-
+                    
                     else:
-
+                        
                         label = ttk.Label(self.frame, text=f"{option}")
                         entry = ttk.Entry(self.frame)
                         label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         entry.grid(row=i, column=1, padx=5, pady=5)
                         self.labels.append(label)
                         self.entries.append(entry)
-
-
-
-
-
+                
+                
+                
+                
+                
                 # for i, option in enumerate(input_options):
                 #     label = ttk.Label(self.frame, text=f"{option}")
                 #     entry = ttk.Entry(self.frame)
@@ -245,12 +261,12 @@ def next_window():
                 #     entry.grid(row=i, column=1, padx=5, pady=5)
                 #     self.labels.append(label)
                 #     self.entries.append(entry)
-
+            
             else:
                 input_options = ["Number of Kernels:", "Kernel Size(in brackets):", "Strides:", "Kernel Initializer:", "Padding:", "Normalization:", "Pooling:","Pool size(in brackets):"]
                 for i, option in enumerate(input_options):
                     if option=="Kernel Initializer:":
-
+                        
                         kernel_label = ttk.Label(self.frame, text=f"{option}")
                         kernel_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['random_normal']
@@ -259,9 +275,9 @@ def next_window():
                         combobox_kernel.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(kernel_label)
                         self.entries.append(self.kernel_var)
-
+                        
                     elif option=="Padding:":
-
+                        
                         pad_label = ttk.Label(self.frame, text=f"{option}")
                         pad_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['same']
@@ -270,9 +286,9 @@ def next_window():
                         combobox_pad.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(pad_label)
                         self.entries.append(self.pad_var)
-
+                    
                     elif option=="Normalization:":
-
+                        
                         norm_label = ttk.Label(self.frame, text=f"{option}")
                         norm_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['Batch Normalization', 'Layer Normalization', 'Group Normalization']
@@ -281,9 +297,9 @@ def next_window():
                         combobox_norm.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(norm_label)
                         self.entries.append(self.norm_var)
-
+                    
                     elif option=="Pooling:":
-
+                        
                         pool_label = ttk.Label(self.frame, text=f"{option}")
                         pool_label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         options = ['MaxPooling2D','AveragePooling2D']
@@ -292,30 +308,28 @@ def next_window():
                         combobox_pool.bind("<<ComboboxSelected>>", on_select1)
                         self.labels.append(pool_label)
                         self.entries.append(self.pool_var)
-
+                    
                     else:
-
+                        
                         label = ttk.Label(self.frame, text=f"{option}")
                         entry = ttk.Entry(self.frame)
                         label.grid(row=i, column=0, padx=5, pady=5, sticky="w")
                         entry.grid(row=i, column=1, padx=5, pady=5)
                         self.labels.append(label)
                         self.entries.append(entry)
-
-
+                
+            
             # Disable activation entry for layers other than the first
             # if self.layer_number != 1:
             #     self.entries[3].configure(state='disabled')
             #     self.labels[3].configure(state='disabled')
 
         def add_layer(self,model,input_shape=(0,0,0)):
-
-            if input_shape==(0,0,0):
+            
             if input_shape==(0,0,0) or self.layer_number!=1:
-
-                model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), kernel_initializer=self.entries[4].get(), padding=self.entries[5].get()))
+                
                 model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), kernel_initializer=self.kernel_var.get(), padding=self.pad_var.get()))
-
+                
                 if self.entries[-3]=='Batch Normalization':
                     model.add(BatchNormalization())
                 elif self.entries[-3]=='Layer Normalization':
@@ -327,12 +341,11 @@ def next_window():
                     model.add(MaxPooling2D(self.entries[-1]))
                 elif self.entries[-2]=='AveragePooling2D':
                     model.add(AveragePooling2D(self.entries[-1]))
-
+                    
             else:
-
-                model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), activation=self.entries[3].get(), kernel_initializer=self.entries[4].get(), padding=self.entries[5].get(),input_shape=input_shape))
+                
                 model.add(Conv2D(int(self.entries[0].get()), kernel_size=eval(self.entries[1].get()), strides=eval(self.entries[2].get()), activation=self.activation_var.get(), kernel_initializer=self.kernel_var.get(), padding=self.pad_var.get(),input_shape=input_shape))
-
+                
                 if self.entries[-3]=='Batch Normalization':
                     model.add(BatchNormalization())
                 elif self.entries[-3]=='Layer Normalization':
@@ -364,6 +377,7 @@ def next_window():
         #     model.add(MaxPooling2D(pool_size=(4,1)))
         # elif pooling=='AveragePooling2D':
         #     model.add(AveragePooling2D(pool_size=(4,1)))
+
         # # Layer2
         # model.add(Conv2D(16, kernel_size=(8, 2), strides=(8, 1), kernel_initializer='random_normal', padding="same"))
         # # model.add(Conv2D(16,kernel_size=(8,2),strides=(8,1),kernel_initializer='random_normal'))
@@ -373,10 +387,13 @@ def next_window():
         #     model.add(LayerNormalization())
         # elif normalization=='Group Normalization':
         #     model.add(GroupNormalization())
+
+
         # if pooling=='MaxPooling2D':
         #     model.add(MaxPooling2D(pool_size=(4,1)))
         # elif pooling=='AveragePooling2D':
         #     model.add(AveragePooling2D(pool_size=(4,1)))
+
         # # Layer3
         # model.add(Conv2D(32, kernel_size=(16, 2), strides=(8, 2), kernel_initializer='random_normal', padding="same"))
         # if normalization=='Batch Normalization':
@@ -385,6 +402,8 @@ def next_window():
         #     model.add(LayerNormalization())
         # elif normalization=='Group Normalization':
         #     model.add(GroupNormalization())
+
+
         # if pooling=='MaxPooling2D':
         #     model.add(MaxPooling2D(pool_size=(4,1)))
         # elif pooling=='AveragePooling2D':
@@ -400,16 +419,20 @@ def next_window():
                 convolutional_layers[Layer_no-1].add_layer(model)
                 
             Layer_no+=1
+
         # Flattening the conv Layer and adding dense Layers
         model.add(keras.layers.Flatten())
         # model.add(keras.layers.Dense(500, activation='relu',kernel_initializer='random_normal'))
         model.add(keras.layers.Dense(100, activation='relu', kernel_initializer='random_normal'))
         model.add(Dense(len(fault_names), activation=dense_activation))
         return model
+
+
     def get_directory():
         directory = filedialog.askdirectory()
         entry_directory.delete(0, "end")
         entry_directory.insert(0, directory)
+
     def process_button_clicked():
         
         global save_label
@@ -425,6 +448,7 @@ def next_window():
         fault_names = entry_fault.get().split(',')                             #gets the data for path, fault names, speeds, domain type
         speeds = [int(speed) for speed in entry_speed.get().split(',')]
         domain = entry_domain.get()
+
         X,Y=process_data(directory,fault_names,speeds,domain)
         X_train, Y_train, X_test, Y_test, X_validation, Y_validation=split(entry_testFraction.get(),entry_validFraction.get(),X,Y)
         input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
@@ -449,8 +473,11 @@ def next_window():
             optimizer=Adafactor(learning_rate=0.001)
         elif optimizer_value=='Nadam':
             optimizer=Nadam(learning_rate=0.001)
+
+
         model.compile(optimizer=optimizer,loss='sparse_categorical_crossentropy',metrics=[metric_value])
         model.summary()
+
         # int64_tensor_epochs = tf.cast(entry_epochs.get(), dtype=tf.int64)
         # int64_tensor_batchsize=tf.cast(entry_batch_size.get(),dtype=tf.int64)
         batchsize=entry_batch_size.get()
@@ -473,6 +500,7 @@ def next_window():
         
         test_accuracy = model.evaluate(X_test, Y_test)
         
+
         # canvas_frame.destroy()
         
         
@@ -494,10 +522,13 @@ def next_window():
         
         entry_validation_score = Entry(root1, width=15,textvariable=val_accuracy_value)
         entry_validation_score.place(x=1050,y=400)
+
         fig_1 = Figure(figsize=(3.5,4.0), facecolor="#917FB3")
         ax_1 = fig_1.add_subplot()
         ax_1.set_facecolor("#917FB3")
         ax_1.set_title('LOSS PLOT')
+
+
         # ax_1.fill_between(x=epochs, y1=train_loss, alpha=0.7)
         ax_1.plot(epochs, train_loss, color="deepskyblue")
         ax_1.plot(epochs,validation_loss,color="blue")
@@ -507,6 +538,8 @@ def next_window():
         canvas1 = FigureCanvasTkAgg(figure=fig_1, master=root1)
         canvas1.draw()
         canvas1.get_tk_widget().place(x=700, y=70)
+
+
         fig_2 = Figure(figsize=(3.5,4.0), facecolor="#917FB3")
         ax_2 = fig_2.add_subplot()
         ax_2.set_facecolor("#917FB3")
@@ -522,6 +555,7 @@ def next_window():
         canvas2.get_tk_widget().place(x=1000, y=70)
         
         
+
         def test_model(file_path, model):
             df_test = pd.read_csv(file_path, sep='\t')
             df_test.columns = range(1+int(entry_sensors.get()))
@@ -620,6 +654,7 @@ def next_window():
     Label(root1, text="No. of points in each dataset:").grid(row=2, column=0, padx=10, pady=5)
     entry_points = Entry(root1, width=5)
     entry_points.grid(row=2, column=1, padx=10, pady=5)
+
     Label(root1, text="Fault Names (comma-separated):").grid(row=3, column=0, padx=10, pady=5)
     entry_fault = Entry(root1, width=30)
     entry_fault.grid(row=3, column=1, padx=10, pady=5)
@@ -635,6 +670,7 @@ def next_window():
     Label(root1, text="Select Input File:").grid(row=6, column=0, padx=0, pady=5)
     entry_directory = Entry(root1, width=50)
     entry_directory.grid(row=6, column=1, padx=10, pady=5)
+
     Button(root1, text="Browse", command=get_directory).grid(row=6, column=2, padx=10, pady=5)
     
     Label(root1, text="Splitting the data:", font=("Helvetica", 10)).grid(row=7, column=0, columnspan=2, padx=(0, 0), pady=5)
@@ -682,6 +718,7 @@ def next_window():
     combobox_optimizer = ttk.Combobox(root1,textvariable=optimizer_var, values=options)
     combobox_optimizer.grid(row=14, column=1, padx=10, pady=5)
     combobox_optimizer.bind("<<ComboboxSelected>>", on_select)
+
     # Label(root1, text="Type of pooling:").grid(row=14, column=0, padx=10, pady=5)
     # pooling_var=tk.StringVar()
     # options = ['MaxPooling2D','AveragePooling2D']
@@ -702,9 +739,11 @@ def next_window():
     # combobox_norm = ttk.Combobox(root1,textvariable=norm_var, values=options)
     # combobox_norm.grid(row=16, column=1, padx=10, pady=5)
     # combobox_norm.bind("<<ComboboxSelected>>", on_select)
+
     
     Button(root1, text="TRAIN THE MODEL", command=process_button_clicked, width=100).grid(row=16, column=1, columnspan=8, padx=(30, 0), pady=10)
     
+
     # canvas.pack(side="left", fill="both", expand=True)
     # scrollbar.pack(side="right", fill="y")
     
@@ -713,6 +752,7 @@ def next_window():
     arch_label.grid(row=0, column=5, columnspan=6, padx=(200, 0), pady=10)
     label_layers = Label(root1, text="Number of Convolutional Layers:")
     entry_layers = Entry(root1)
+
     canvas_frame = ttk.Frame(root1)
     
     # Add a label indicating the layer number
@@ -731,10 +771,12 @@ def next_window():
     global num_layers
     num_layers=0
     
+
     def layer_details():
         global num_layers
         global convolutional_layers
         num_layers = int(entry_layers.get())
+
         for i in range(1, num_layers + 1):
             convolutional_layer = ConvolutionalLayerInput(i, canvas_frame)
             convolutional_layer.frame.grid(row=0, column=0, columnspan=2, pady=10, sticky="ne")
@@ -757,6 +799,8 @@ def next_window():
         show_page()
         button_layer_details.grid_forget()
         entry_layers.grid_forget()
+
+
     
         def next_page():
             global current_page
@@ -797,6 +841,7 @@ def next_window():
             
     
         
+
         
         # # Load forward and backward arrow images
         # forward_path="C:/Users/Abhishek Srivastava/Downloads/forward_icon.png"
@@ -844,13 +889,17 @@ def next_window():
     
 root = Tk()
 root.title("A GUI based application")
+
 Label(root, text="Enter your Project Name:").grid(row=0, column=0, padx=10, pady=5)
 entry_name = Entry(root, width=70)
 entry_name.grid(row=1, column=1, padx=10, pady=5)
+
 def on_enter(event):
     next_button.invoke()  # Invoke the next_button's command when Enter is pressed
+
 next_button=Button(root, text="Next", command=next_window)
 next_button.grid(row=2, column=1, padx=10, pady=5)
 root.bind('<Return>', on_enter)
+
 # Run the Tkinter event loop
 root.mainloop()
